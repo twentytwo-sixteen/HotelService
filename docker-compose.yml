@@ -1,0 +1,23 @@
+version: '3.9'
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: hotel_user
+      POSTGRES_PASSWORD: hotel_pass
+      POSTGRES_DB: hotel_db
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+
+  web:
+    build: .
+    ports:
+      - "9000:9000"
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+    command: bash -c "poetry install && poetry run uvicorn app.main:app --host 0.0.0.0 --port 9000 --reload"
